@@ -191,7 +191,7 @@ function refresh(): void {
         .map(symbol => symbol.toUpperCase())
     //pick only the top currency    
     const stringCurrency = config.get('cryptoticker.cryptoCurrency', 'USD')
-    const configExchange = config.get('cryptoticker.cryptoExchange','CCCAGG')
+    const configExchange = config.get('cryptoticker.cryptoExchange','Bitfinex')
     const symbolCurrency = currencyMap[stringCurrency]
     if (!symbolCurrency ) {
         console.log('Currency not found')
@@ -210,7 +210,11 @@ function fillEmpty(symbols: string[], stringCurrency: string, symbolCurrency:str
             // Enforce ordering with priority
             const priority = symbols.length - i
             const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, priority)
-            item.text = `${symbol}: ${symbolCurrency}…`
+            if(i == 0){
+                item.text = `[Exchange: ${configExchange}] - ${symbol}: ${symbolCurrency}…`
+            }else{
+                item.text = `${symbol}: ${symbolCurrency}…`
+            }
             item.show()
             items.set(symbol, item)
         })
@@ -243,8 +247,11 @@ function updateItemWithSymbolResult(element, symbolResult, stringCurrency, symbo
     const symbol = element
     const item = items.get(symbol)
     const price: number = symbolResult[stringCurrency]
-
-    item.text = `${symbol.toUpperCase()} ${symbolCurrency}${price}`   
+    if (item.text.indexOf('Exchange') !== -1){
+        item.text = `[Exchange: ${configExchange}] - ${symbol.toUpperCase()} ${symbolCurrency}${price}`
+    }else{
+        item.text = `${symbol.toUpperCase()} ${symbolCurrency}${price}`
+    }   
 }
 
 function httpGet(url): Promise<string> {
